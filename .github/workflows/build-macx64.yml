@@ -36,6 +36,11 @@ jobs:
           file runtime/mac-x64/python/bin/python
           file runtime/mac-x64/ffmpeg
 
+      - name: Verify architecture
+        run: |
+          uname -m
+          python -c "import platform; print(platform.machine())"
+          
       - name: Upload Runtime
         uses: actions/upload-artifact@v4
         with:
