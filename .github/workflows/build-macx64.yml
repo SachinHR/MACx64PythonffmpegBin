@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +40,7 @@ jobs:
         run: |
           uname -m
           python -c "import platform; print(platform.machine())"
-          
+
       - name: Upload Runtime
         uses: actions/upload-artifact@v4
         with:
