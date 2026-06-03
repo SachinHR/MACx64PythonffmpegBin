@@ -1,0 +1,12 @@
+name: Test Intel Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-15-intel
+
+    steps:
+      - run: uname -m
+      - run: python3 -c "import platform; print(platform.machine())"
