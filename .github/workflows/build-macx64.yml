@@ -1,0 +1,43 @@
+name: Build macOS x64 Runtime
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python x64
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: x64
+
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install ffmpeg
+        run: |
+          brew install ffmpeg
+
+      - name: Create runtime
+        run: |
+          mkdir -p runtime/mac-x64
+
+          python -m venv runtime/mac-x64/python
+
+          cp $(which ffmpeg) runtime/mac-x64/ffmpeg
+
+          file runtime/mac-x64/python/bin/python
+          file runtime/mac-x64/ffmpeg
+
+      - name: Upload Runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-x64-runtime
+          path: runtime/mac-x64
