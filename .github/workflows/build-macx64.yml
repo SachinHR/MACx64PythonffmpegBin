@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest-large
+    runs-on: macos-15-intel
 
     steps:
       - uses: actions/checkout@v4
@@ -16,30 +16,28 @@ jobs:
           python-version: "3.12"
           architecture: x64
 
-      - name: Install Python packages
+      - name: Verify Architecture
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          uname -m
+          python -c "import platform; print(platform.machine())"
+
+      - name: Create Runtime Folder
+        run: |
+          mkdir -p runtime/mac-x64
+
+      - name: Create Python Runtime
+        run: |
+          python -m venv runtime/mac-x64/python
 
       - name: Install ffmpeg
         run: |
           brew install ffmpeg
-
-      - name: Create runtime
-        run: |
-          mkdir -p runtime/mac-x64
-
-          python -m venv runtime/mac-x64/python
-
           cp $(which ffmpeg) runtime/mac-x64/ffmpeg
 
+      - name: Verify Runtime
+        run: |
           file runtime/mac-x64/python/bin/python
           file runtime/mac-x64/ffmpeg
-
-      - name: Verify architecture
-        run: |
-          uname -m
-          python -c "import platform; print(platform.machine())"
 
       - name: Upload Runtime
         uses: actions/upload-artifact@v4
