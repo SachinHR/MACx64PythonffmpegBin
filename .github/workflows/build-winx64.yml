@@ -1,0 +1,58 @@
+name: Build Windows x64 Runtime
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python x64
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+
+      - name: Verify Architecture
+        shell: pwsh
+        run: |
+          python -c "import platform; print(platform.machine())"
+
+      - name: Create Runtime Folder
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force runtime/win-x64
+
+      - name: Create Python Runtime
+        shell: pwsh
+        run: |
+          python -m venv runtime/win-x64/python
+
+      - name: Install FFmpeg
+        shell: pwsh
+        run: |
+          choco install ffmpeg -y
+          Copy-Item "C:\ProgramData\chocolatey\bin\ffmpeg.exe" `
+            "runtime/win-x64\ffmpeg.exe"
+
+      - name: Verify Runtime
+        shell: pwsh
+        run: |
+          runtime\win-x64\python\Scripts\python.exe --version
+          runtime\win-x64\ffmpeg.exe -version
+
+      - name: Verify Architecture
+        shell: pwsh
+        run: |
+          echo "PROCESSOR_ARCHITECTURE=$env:PROCESSOR_ARCHITECTURE"
+          echo "PROCESSOR_IDENTIFIER=$env:PROCESSOR_IDENTIFIER"
+          python -c "import platform,struct; print('machine=',platform.machine()); print('bits=',struct.calcsize('P')*8)"
+          
+      - name: Upload Runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-x64-runtime
+          path: runtime/win-x64
