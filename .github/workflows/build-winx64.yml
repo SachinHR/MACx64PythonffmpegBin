@@ -35,8 +35,18 @@ jobs:
         shell: pwsh
         run: |
           choco install ffmpeg -y
-          Copy-Item "C:\ProgramData\chocolatey\bin\ffmpeg.exe" `
-            "runtime/win-x64\ffmpeg.exe"
+
+          $ffmpeg = Get-ChildItem `
+            "C:\ProgramData\chocolatey\lib\ffmpeg\tools" `
+            -Recurse `
+            -Filter ffmpeg.exe |
+            Select-Object -First 1
+
+          Copy-Item $ffmpeg.FullName `
+            runtime\win-x64\ffmpeg.exe
+
+          Write-Host "Copied:"
+          Write-Host $ffmpeg.FullName
 
       - name: Verify Runtime
         shell: pwsh
@@ -50,7 +60,7 @@ jobs:
           echo "PROCESSOR_ARCHITECTURE=$env:PROCESSOR_ARCHITECTURE"
           echo "PROCESSOR_IDENTIFIER=$env:PROCESSOR_IDENTIFIER"
           python -c "import platform,struct; print('machine=',platform.machine()); print('bits=',struct.calcsize('P')*8)"
-          
+
       - name: Upload Runtime
         uses: actions/upload-artifact@v4
         with:
